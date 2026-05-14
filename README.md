@@ -57,10 +57,33 @@ Good for a **single server**: Django API + SQLite file on **persistent disk** (E
 3. **Deploy**
 
    ```bash
+   export DJANGO_SETTINGS_MODULE=config.settings.production
    python manage.py migrate
    python manage.py collectstatic --noinput
    gunicorn config.wsgi:application --bind 0.0.0.0:8000
    ```
+
+   **First-time EC2 (Ubuntu) — after Git push**
+
+   ```bash
+   # On the server (SSH). Replace YOUR_REPO_URL with your Git remote HTTPS/SSH URL.
+   sudo apt update && sudo apt install -y git python3-venv python3-pip build-essential
+   sudo mkdir -p /var/lib/aivora && sudo chown "$USER:$USER" /var/lib/aivora
+
+   git clone YOUR_REPO_URL aivora && cd aivora/backend
+   python3 -m venv .venv && source .venv/bin/activate
+   pip install -r requirements.txt
+   cp .env.example .env && nano .env   # set DJANGO_DEBUG=False, DJANGO_SECRET_KEY, SQLITE_PATH=/var/lib/aivora/db.sqlite3, SMTP, hosts/CORS; see below
+
+   export DJANGO_SETTINGS_MODULE=config.settings.production
+   python manage.py migrate
+   python manage.py seed_aivora
+   python manage.py createsuperuser
+   python manage.py collectstatic --noinput
+   gunicorn config.wsgi:application --bind 0.0.0.0:8000
+   ```
+
+   **Plain HTTP on port 8000** (security group allows 8000; no nginx/TLS yet): in `.env` set `SECURE_SSL_REDIRECT=False`, `SESSION_COOKIE_SECURE=False`, and `CSRF_COOKIE_SECURE=False`. When you add HTTPS behind nginx, set those back to secure defaults and include `https://…` in `CORS_ALLOWED_ORIGINS` / `DJANGO_CSRF_TRUSTED_ORIGINS`.
 
 4. **Frontend:** build with `npm run build` and serve `dist/` via **nginx** on the same instance, **or** any static host (Netlify, CloudFront with **origin = your built files** — no S3 bucket required if you upload artifacts elsewhere). If the API is another origin, set `VITE_API_URL` at build time.
 
