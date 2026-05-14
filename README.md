@@ -60,14 +60,16 @@ Good for a **single server**: Django API + SQLite file on **persistent disk** (E
    export DJANGO_SETTINGS_MODULE=config.settings.production
    python manage.py migrate
    python manage.py collectstatic --noinput
-   gunicorn config.wsgi:application --bind 0.0.0.0:8000
+   gunicorn -c gunicorn.conf.py config.wsgi:application
    ```
 
    **First-time EC2 (Ubuntu) — after Git push**
 
    ```bash
    # On the server (SSH). Replace YOUR_REPO_URL with your Git remote HTTPS/SSH URL.
-   sudo apt update && sudo apt install -y git python3-venv python3-pip build-essential
+   sudo apt update && sudo apt install -y git python3-pip build-essential python3-venv
+   # If `python3 -m venv .venv` still says ensurepip is not available, install the matching package, e.g.:
+   # sudo apt install -y python3.12-venv
    sudo mkdir -p /var/lib/aivora && sudo chown "$USER:$USER" /var/lib/aivora
 
    git clone YOUR_REPO_URL aivora && cd aivora/backend
@@ -80,10 +82,21 @@ Good for a **single server**: Django API + SQLite file on **persistent disk** (E
    python manage.py seed_aivora
    python manage.py createsuperuser
    python manage.py collectstatic --noinput
-   gunicorn config.wsgi:application --bind 0.0.0.0:8000
+   gunicorn -c gunicorn.conf.py config.wsgi:application
    ```
 
    **Plain HTTP on port 8000** (security group allows 8000; no nginx/TLS yet): in `.env` set `SECURE_SSL_REDIRECT=False`, `SESSION_COOKIE_SECURE=False`, and `CSRF_COOKIE_SECURE=False`. When you add HTTPS behind nginx, set those back to secure defaults and include `https://…` in `CORS_ALLOWED_ORIGINS` / `DJANGO_CSRF_TRUSTED_ORIGINS`.
+
+   **EC2 troubleshooting**
+
+   - **venv / ensurepip:** run `sudo apt install -y python3-venv` (and if needed `sudo apt install -y python3.12-venv` to match `python3 --version`). Create the venv **inside** `aivora/backend` (`cd …/aivora/backend && python3 -m venv .venv`), not in `$HOME` alone.
+   - **Gunicorn must run from `backend/`:** `cd ~/aivora/backend && source .venv/bin/activate` then `gunicorn -c gunicorn.conf.py config.wsgi:application` (uses **one worker** — important on **t2.micro** to avoid OOM / `SIGKILL`).
+   - **Worker SIGKILL / “Perhaps out of memory”:** your instance ran out of RAM. Use `gunicorn.conf.py` (single worker), add **swap** (example: `sudo fallocate -l 1G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile`), or upgrade instance type.
+   - **Browser check:** `http://aivora.duckdns.org:8000/` returns a small JSON `{"ok": true, …}` (API only — not the React marketing site). Lists: `http://aivora.duckdns.org:8000/api/offerings/services/`.
+   - **React site:** requires `npm run build` + nginx (or another host) serving `frontend/dist/`; Gunicorn alone does not serve the Vite homepage at `/`.
+   - **Connection refused:** security group inbound **8000**, Gunicorn actually running, Duck DNS IP matches EC2 public IP (`curl -s ifconfig.me` on the instance vs Duck DNS).
+   - **DisallowedHost:** add the hostname you use in the browser to `DJANGO_ALLOWED_HOSTS` in `.env`.
+   - **Redirect to https / broken cookies over http:** set the three `SECURE_*` / cookie flags to `False` for plain HTTP (see above).
 
 4. **Frontend:** build with `npm run build` and serve `dist/` via **nginx** on the same instance, **or** any static host (Netlify, CloudFront with **origin = your built files** — no S3 bucket required if you upload artifacts elsewhere). If the API is another origin, set `VITE_API_URL` at build time.
 

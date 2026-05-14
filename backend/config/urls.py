@@ -1,9 +1,23 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
 
+
+def root_health(_request):
+    """So http://host:8000/ is not a silent 404 when only Gunicorn + API is deployed."""
+    return JsonResponse(
+        {
+            "ok": True,
+            "service": "aivora-backend",
+            "try": "/api/offerings/services/",
+        }
+    )
+
+
 urlpatterns = [
+    path("", root_health),
     path("admin/", admin.site.urls),
     path("api/auth/", include("apps.accounts.urls")),
     path("api/offerings/", include("apps.offerings.urls")),
