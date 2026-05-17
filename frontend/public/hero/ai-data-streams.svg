@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" fill="none">
+  <defs>
+    <linearGradient id="stream" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="40%" stop-color="#22d3ee" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path d="M0 120 C200 80, 400 160, 600 100 S900 60, 1000 140" stroke="url(#stream)" stroke-width="2" opacity="0.5"/>
+  <path d="M0 280 C180 240, 420 320, 620 260 S920 220, 1000 300" stroke="url(#stream)" stroke-width="1.5" opacity="0.4"/>
+  <path d="M0 420 C220 380, 460 460, 680 400 S940 360, 1000 440" stroke="url(#stream)" stroke-width="1.25" opacity="0.35"/>
+  <g opacity="0.5" fill="#67e8f9">
+    <rect x="120" y="115" width="3" height="12" rx="1"/><rect x="340" y="95" width="3" height="18" rx="1"/>
+    <rect x="520" y="105" width="3" height="14" rx="1"/><rect x="780" y="130" width="3" height="16" rx="1"/>
+    <rect x="200" y="275" width="3" height="10" rx="1"/><rect x="480" y="255" width="3" height="20" rx="1"/>
+    <rect x="860" y="290" width="3" height="12" rx="1"/>
+  </g>
+</svg>

@@ -79,7 +79,7 @@ export default function Navbar() {
                 : "rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-slate-200 hover:border-sky-400/40 hover:text-white"
             }
           >
-            {isStaff ? "Dashboard" : user ? "Account" : "Team login"}
+            {isStaff ? "Dashboard" : user ? "Account" : "Dash Board"}
           </NavLink>
         </div>
 
@@ -118,7 +118,7 @@ export default function Navbar() {
               className="rounded-lg px-3 py-2 text-sky-300"
               onClick={() => setOpen(false)}
             >
-              {isStaff ? "Dashboard" : user ? "Account" : "Team login"}
+              {isStaff ? "Dashboard" : user ? "Account" : "Dash Board"}
             </Link>
           </div>
         </motion.div>

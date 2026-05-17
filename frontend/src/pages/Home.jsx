@@ -87,7 +87,7 @@ export default function Home() {
       </Helmet>
 
       {/* Hero — cinematic AI control plane */}
-      <section className="relative overflow-hidden border-b border-white/10">
+      <section data-hero-section className="relative overflow-hidden border-b border-white/10">
         <HeroBackground />
         <div className="relative z-10 mx-auto flex max-w-7xl flex-col gap-14 px-4 pb-28 pt-14 sm:px-6 lg:flex-row lg:items-stretch lg:gap-12 lg:px-8 lg:pb-36 lg:pt-12">
           <motion.div

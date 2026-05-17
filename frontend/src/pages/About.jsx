@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
+import AboutHero from "../components/about/AboutHero.jsx";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion.js";
 
 const CTO_IMAGE = "/team/pathapati-sivaiah-cto.png";
@@ -30,20 +31,11 @@ export default function About() {
           content="Learn about Aivora Solutions — mission, values, and how we deliver intelligent digital products."
         />
       </Helmet>
+
+      <AboutHero />
+
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-        <motion.h1
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="font-display text-4xl font-bold text-white"
-        >
-          About Aivora Solutions
-        </motion.h1>
-        <p className="mt-6 text-lg text-slate-400">
-          We are a product-minded engineering partner for organizations that need dependable software — from AI-assisted
-          workflows to citizen-facing portals. Our teams blend UX craft with robust backends so launches feel inevitable,
-          not improvised.
-        </p>
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2">
           <div className="glass-panel p-6">
             <h2 className="font-display text-xl font-semibold text-white">Mission</h2>
             <p className="mt-3 text-slate-400">
@@ -93,7 +85,7 @@ export default function About() {
                       alt="Pathapati Sivaiah, Chief Technology Officer at Aivora Solutions"
                       width={520}
                       height={650}
-                      className="aspect-[4/5] w-full object-cover object-top"
+                      className="aspect-[4/5] w-full object-cover object-center"
                       loading="lazy"
                       decoding="async"
                     />

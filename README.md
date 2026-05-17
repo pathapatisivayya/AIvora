@@ -12,7 +12,7 @@ python -m venv .venv
 .venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 copy .env.example .env
-# Local: USE_SQLITE=True (default in development settings)
+# Local: USE_SQLITE=True (default), DJANGO_DEBUG=True in .env
 python manage.py migrate
 python manage.py seed_aivora
 python manage.py runserver
@@ -43,11 +43,11 @@ Good for a **single server**: Django API + SQLite file on **persistent disk** (E
 
 2. **Environment** (systemd, `.env` next to the app, or Elastic Beanstalk env):
 
-   - `DJANGO_SETTINGS_MODULE=config.settings.production`
+   - `DJANGO_SETTINGS_MODULE=config.settings`
    - `DJANGO_SECRET_KEY` — long random string  
    - `DJANGO_DEBUG=False`  
    - `DJANGO_ALLOWED_HOSTS` — include your **hostname** (e.g. Duck DNS `aivora.duckdns.org`), **public IPv4**, **private IPv4** (for internal/VPC or health checks), **public DNS**, and local dev (example: `aivora.duckdns.org,107.23.239.129,172.31.38.134,ec2-107-23-239-129.compute-1.amazonaws.com,localhost,127.0.0.1`) — or `*` behind ALB only if you accept the tradeoffs  
-   - **`USE_SQLITE=True`** (default in production settings)  
+   - **`USE_SQLITE=True`** (default)  
    - **`SQLITE_PATH=/var/lib/aivora/db.sqlite3`** — must survive reboots (not `/tmp`)  
    - `USE_S3=False` — leave off unless you add a bucket later  
    - `CORS_ALLOWED_ORIGINS` — list every **browser origin** that calls the API (e.g. `http://aivora.duckdns.org`, `https://aivora.duckdns.org`, your EC2 `http://…` URLs, plus local Vite)  
@@ -57,7 +57,7 @@ Good for a **single server**: Django API + SQLite file on **persistent disk** (E
 3. **Deploy**
 
    ```bash
-   export DJANGO_SETTINGS_MODULE=config.settings.production
+   export DJANGO_SETTINGS_MODULE=config.settings
    python manage.py migrate
    python manage.py collectstatic --noinput
    gunicorn -c gunicorn.conf.py config.wsgi:application
@@ -77,7 +77,7 @@ Good for a **single server**: Django API + SQLite file on **persistent disk** (E
    pip install -r requirements.txt
    cp .env.example .env && nano .env   # set DJANGO_DEBUG=False, DJANGO_SECRET_KEY, SQLITE_PATH=/var/lib/aivora/db.sqlite3, SMTP, hosts/CORS; see below
 
-   export DJANGO_SETTINGS_MODULE=config.settings.production
+   export DJANGO_SETTINGS_MODULE=config.settings
    python manage.py migrate
    python manage.py seed_aivora
    python manage.py createsuperuser

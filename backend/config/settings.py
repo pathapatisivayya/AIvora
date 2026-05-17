@@ -1,12 +1,18 @@
+"""
+Django settings for Aivora (standard single settings module).
+
+Use DJANGO_DEBUG=True in .env for local dev; False on production EC2.
+"""
+
+from datetime import timedelta
 from pathlib import Path
 
 import environ
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
-    DJANGO_DEBUG=(bool, False),
-    ALLOWED_HOSTS=(list, ["*"]),
+    DJANGO_DEBUG=(bool, True),
     CORS_ALLOWED_ORIGINS=(list, ["http://localhost:5173", "http://127.0.0.1:5173"]),
 )
 
@@ -14,12 +20,17 @@ environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="change-me-in-production-use-long-random-string")
 
-DEBUG = env("DJANGO_DEBUG")
+# Default True for local dev; set DJANGO_DEBUG=False on production EC2.
+DEBUG = env.bool("DJANGO_DEBUG", default=True)
 
-# Default "*" suits AWS (ALB/CloudFront) hostnames; override in .env to restrict, e.g. "api.example.com,localhost"
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
+ALLOWED_HOSTS = [h.strip() for h in env.list("DJANGO_ALLOWED_HOSTS", default=[]) if h.strip()]
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = (
+        ["localhost", "127.0.0.1", "[::1]", "0.0.0.0"]
+        if DEBUG
+        else ["localhost", "127.0.0.1"]
+    )
 
-# Django 4+: full origins with scheme (e.g. https://aivora.duckdns.org) for HTTPS admin/forms.
 CSRF_TRUSTED_ORIGINS = env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[])
 
 INSTALLED_APPS = [
@@ -74,16 +85,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": env("DB_ENGINE", default="django.db.backends.postgresql"),
-        "NAME": env("DB_NAME", default="aivora"),
-        "USER": env("DB_USER", default="aivora"),
-        "PASSWORD": env("DB_PASSWORD", default="aivora"),
-        "HOST": env("DB_HOST", default="localhost"),
-        "PORT": env("DB_PORT", default="5432"),
+# --- Database ---
+if env.bool("USE_SQLITE", default=True):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": env("SQLITE_PATH", default=str(BASE_DIR / "db.sqlite3")),
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": env("DB_ENGINE", default="django.db.backends.postgresql"),
+            "NAME": env("DB_NAME", default="aivora"),
+            "USER": env("DB_USER", default="aivora"),
+            "PASSWORD": env("DB_PASSWORD", default="aivora"),
+            "HOST": env("DB_HOST", default="localhost"),
+            "PORT": env("DB_PORT", default="5432"),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -118,8 +138,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
 }
 
-from datetime import timedelta
-
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(env("JWT_ACCESS_MINUTES", default=60))),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=int(env("JWT_REFRESH_DAYS", default=7))),
@@ -128,7 +146,6 @@ SIMPLE_JWT = {
 
 if env.bool("CORS_ALLOW_ALL_ORIGINS", default=False):
     CORS_ALLOW_ALL_ORIGINS = True
-    # Browsers forbid wildcard origin + credentials; JWT uses Authorization header, not cookies.
     CORS_ALLOW_CREDENTIALS = False
 else:
     CORS_ALLOWED_ORIGINS = env.list(
@@ -152,7 +169,34 @@ if USE_S3 and AWS_STORAGE_BUCKET_NAME:
         "default": {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"},
         "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
     }
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/" if AWS_S3_CUSTOM_DOMAIN else f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
+    MEDIA_URL = (
+        f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+        if AWS_S3_CUSTOM_DOMAIN
+        else f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
+    )
 
 CONTACT_EMAIL_TO = env("CONTACT_EMAIL_TO", default="hello@aivorasolutions.com")
 WHATSAPP_NUMBER = env("WHATSAPP_NUMBER", default="")
+
+# --- Email ---
+if DEBUG and not env("EMAIL_HOST", default="").strip():
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = env("EMAIL_HOST", default="localhost")
+    EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+    EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+    EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@aivorasolutions.com")
+    EMAIL_TIMEOUT = 20
+
+# --- Production security (when DEBUG is False) ---
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = "DENY"
+    SESSION_COOKIE_SECURE = env.bool("SESSION_COOKIE_SECURE", default=True)
+    CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=True)
+    SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

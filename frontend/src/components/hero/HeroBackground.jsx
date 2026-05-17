@@ -1,97 +1,136 @@
 import { motion } from "framer-motion";
 import NeuralCanvas from "./NeuralCanvas.jsx";
+import HeroAtmosphere from "./background/HeroAtmosphere.jsx";
+import HeroMouseLight from "./background/HeroMouseLight.jsx";
+import HeroGlobeLabels from "./background/HeroGlobeLabels.jsx";
+import HeroWebGLScene from "./background/HeroWebGLScene.jsx";
+import { useHeroScrollOffset } from "../../hooks/useHeroScrollOffset.js";
 import { usePrefersReducedMotion } from "../../hooks/usePrefersReducedMotion.js";
 
-/** Layered aurora, grid, orbs, subtle stars, neural canvas. */
+/**
+ * Cinematic AI hero atmosphere — background only.
+ * Content/layout unchanged; left scrim preserves text readability.
+ */
 export default function HeroBackground() {
   const reduced = usePrefersReducedMotion();
+  const scrollY = useHeroScrollOffset();
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Aurora washes */}
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+      style={{ transform: `translate3d(0, ${scrollY * 0.35}px, 0)` }}
+    >
+      {/* Deep space base */}
       <motion.div
-        className="absolute -left-1/4 top-0 h-[120%] w-[70%] rounded-full bg-gradient-to-br from-cyan-500/25 via-violet-600/20 to-transparent blur-[100px]"
-        animate={
-          reduced
-            ? {}
-            : {
-                x: [0, 40, -20, 0],
-                y: [0, 30, 10, 0],
-                scale: [1, 1.05, 1],
-              }
-        }
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute -right-1/4 bottom-0 h-[90%] w-[60%] rounded-full bg-gradient-to-tl from-sky-600/30 via-fuchsia-600/15 to-transparent blur-[90px]"
-        animate={
-          reduced
-            ? {}
-            : {
-                x: [0, -50, 20, 0],
-                y: [0, -40, 0, 0],
-              }
-        }
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0 bg-[radial-gradient(ellipse_85%_75%_at_50%_45%,#0a1628_0%,#020617_45%,#000000_100%)]"
+        style={{ transform: `translate3d(0, ${scrollY * 0.2}px, 0)` }}
       />
 
-      {/* Moving perspective grid */}
+      {/* WebGL digital globe + background neural network */}
       <div
-        className="absolute inset-0 opacity-[0.35]"
+        className="absolute inset-0"
+        style={{ transform: `translate3d(0, ${scrollY * 0.45}px, 0) scale(1.02)` }}
+      >
+        <HeroWebGLScene />
+      </div>
+
+      {/* Hex data labels near digital globe */}
+      <HeroGlobeLabels scrollY={scrollY} />
+
+      {/* Aurora mesh gradients */}
+      <motion.div
+        className="absolute -left-[10%] top-[-20%] h-[130%] w-[75%] rounded-full bg-gradient-to-br from-cyan-500/30 via-sky-600/15 to-transparent blur-[110px]"
+        animate={
+          reduced
+            ? {}
+            : {
+                x: [0, 50, -25, 0],
+                y: [0, 35, 15, 0],
+                scale: [1, 1.06, 1],
+              }
+        }
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        style={{ transform: `translate3d(0, ${scrollY * 0.25}px, 0)` }}
+      />
+      <motion.div
+        className="absolute -right-[15%] bottom-[-10%] h-[95%] w-[65%] rounded-full bg-gradient-to-tl from-cyan-600/20 via-sky-600/10 to-transparent blur-[100px]"
+        animate={
+          reduced
+            ? {}
+            : {
+                x: [0, -45, 20, 0],
+                y: [0, -35, 10, 0],
+              }
+        }
+        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
+        style={{ transform: `translate3d(0, ${scrollY * 0.3}px, 0)` }}
+      />
+
+      {/* Animated tech grid — dual layer */}
+      <motion.div
+        className="absolute inset-0 opacity-[0.32]"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(56,189,248,0.09) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(56,189,248,0.09) 1px, transparent 1px)
+            linear-gradient(rgba(56,189,248,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(56,189,248,0.1) 1px, transparent 1px)
           `,
-          backgroundSize: "64px 64px",
-          maskImage: "radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 75%)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(ellipse 80% 70% at 50% 45%, black 15%, transparent 72%)",
+          transform: `translate3d(0, ${scrollY * 0.15}px, 0)`,
         }}
       />
       {!reduced && (
         <motion.div
-          className="absolute inset-0 opacity-40"
+          className="absolute inset-0 opacity-35"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(167,139,250,0.06) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(167,139,250,0.06) 1px, transparent 1px)
+              linear-gradient(rgba(167,139,250,0.07) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(167,139,250,0.07) 1px, transparent 1px)
             `,
-            backgroundSize: "96px 96px",
-            maskImage: "radial-gradient(ellipse 80% 60% at 50% 45%, black 10%, transparent 70%)",
+            backgroundSize: "88px 88px",
+            maskImage: "radial-gradient(ellipse 85% 70% at 50% 45%, black 10%, transparent 68%)",
           }}
-          animate={{ backgroundPosition: ["0px 0px", "96px 96px"] }}
-          transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
+          animate={{ backgroundPosition: ["0px 0px", "88px 88px"] }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
         />
       )}
 
-      {/* Floating orbs */}
+      {/* Floating light orbs */}
       <motion.div
-        className="absolute left-[12%] top-[25%] h-72 w-72 rounded-full bg-sky-500/15 blur-[80px]"
-        animate={reduced ? {} : { y: [0, -25, 0], opacity: [0.35, 0.55, 0.35] }}
-        transition={{ duration: 10, repeat: Infinity }}
+        className="absolute left-[8%] top-[20%] h-80 w-80 rounded-full bg-cyan-400/20 blur-[90px]"
+        animate={reduced ? {} : { y: [0, -30, 0], opacity: [0.3, 0.55, 0.3], scale: [1, 1.08, 1] }}
+        transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-[15%] right-[8%] h-64 w-64 rounded-full bg-violet-500/20 blur-[70px]"
-        animate={reduced ? {} : { y: [0, 20, 0], x: [0, -15, 0] }}
-        transition={{ duration: 12, repeat: Infinity }}
+        className="absolute bottom-[8%] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-cyan-500/20 blur-[90px]"
+        animate={reduced ? {} : { y: [0, 20, 0], opacity: [0.3, 0.55, 0.3] }}
+        transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute left-1/2 top-[48%] h-64 w-64 -translate-x-1/2 rounded-full bg-sky-400/20 blur-[80px]"
+        animate={reduced ? {} : { opacity: [0.2, 0.4, 0.2] }}
+        transition={{ duration: 8, repeat: Infinity }}
       />
 
-      {/* Drifting stars */}
+      {/* Stars */}
       {!reduced && (
-        <div className="absolute inset-0">
-          {Array.from({ length: 48 }).map((_, i) => (
+        <div className="absolute inset-0" style={{ transform: `translate3d(0, ${scrollY * 0.1}px, 0)` }}>
+          {Array.from({ length: 64 }).map((_, i) => (
             <motion.span
               key={i}
-              className="absolute h-0.5 w-0.5 rounded-full bg-white"
+              className="absolute rounded-full bg-white"
               style={{
-                left: `${(i * 17.3) % 100}%`,
-                top: `${(i * 31.7) % 100}%`,
-                opacity: 0.15 + (i % 5) * 0.08,
+                left: `${(i * 13.7) % 100}%`,
+                top: `${(i * 23.1) % 100}%`,
+                width: i % 7 === 0 ? 2 : 1,
+                height: i % 7 === 0 ? 2 : 1,
               }}
-              animate={{ opacity: [0.15, 0.55, 0.15], y: [0, -12, 0] }}
+              animate={{ opacity: [0.1, 0.65, 0.1], y: [0, -14, 0] }}
               transition={{
-                duration: 4 + (i % 5),
+                duration: 3.5 + (i % 6),
                 repeat: Infinity,
-                delay: i * 0.08,
+                delay: i * 0.06,
                 ease: "easeInOut",
               }}
             />
@@ -99,14 +138,25 @@ export default function HeroBackground() {
         </div>
       )}
 
-      {/* Neural network canvas (interactive) */}
-      <NeuralCanvas />
+      {/* 2D neural network + data pulses */}
+      <div style={{ transform: `translate3d(0, ${scrollY * 0.2}px, 0)` }}>
+        <NeuralCanvas className="opacity-95" />
+      </div>
 
-      {/* Soft vignette */}
-      <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_85%_70%_at_50%_45%,transparent_20%,rgba(3,7,18,0.75)_100%)]"
-        aria-hidden
-      />
+      {/* SVG rings, streams, cyber lines */}
+      <HeroAtmosphere scrollY={scrollY} />
+
+      {/* Mouse-reactive light */}
+      <HeroMouseLight />
+
+      {/* Readability: darken sides, globe visible in center */}
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,7,18,0.92)_0%,rgba(3,7,18,0.55)_20%,rgba(3,7,18,0.12)_50%,rgba(3,7,18,0.5)_80%,rgba(3,7,18,0.9)_100%)]" />
+
+      {/* Cinematic vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_95%_80%_at_50%_45%,transparent_20%,rgba(3,7,18,0.78)_100%)]" />
+
+      {/* Subtle top shine — glass reflection */}
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-white/[0.04] to-transparent" />
     </div>
   );
 }

@@ -9,7 +9,7 @@ export default function HeroHeadline() {
   const words = line1.split(" ");
 
   return (
-    <div className="relative flex-1">
+    <div className="relative z-10 flex-1">
       <div
         className="pointer-events-none absolute -left-10 top-1/2 h-[120%] w-[85%] -translate-y-1/2 rounded-full bg-gradient-to-r from-cyan-500/25 via-violet-600/20 to-transparent blur-[80px]"
         aria-hidden
@@ -24,13 +24,13 @@ export default function HeroHeadline() {
         Aivora Solutions
       </motion.p>
 
-      <h1 className="relative mt-5 font-display text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[3.25rem] xl:text-6xl">
+      <h1 className="relative mt-5 font-display text-3xl font-bold leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-[2.65rem] xl:text-[2.85rem]">
         <span className="flex flex-wrap gap-x-2 gap-y-1">
           {words.map((w, i) => (
             <motion.span
               key={`${w}-${i}`}
-              initial={{ opacity: reduced ? 1 : 0, y: reduced ? 0 : 18, filter: reduced ? "none" : "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              initial={{ opacity: reduced ? 1 : 0, y: reduced ? 0 : 18 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{
                 delay: reduced ? 0 : 0.04 + i * 0.035,
                 duration: reduced ? 0 : 0.55,
@@ -56,7 +56,7 @@ export default function HeroHeadline() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: reduced ? 0 : 0.5, duration: reduced ? 0 : 0.55 }}
-        className="relative mt-7 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg"
+        className="relative z-10 mt-7 max-w-xl text-base leading-relaxed text-slate-200 sm:text-lg"
       >
         Aivora Solutions delivers modern AI-powered software solutions, websites, mobile apps, and enterprise systems
         for businesses, schools, hospitals, churches, and government organizations.
