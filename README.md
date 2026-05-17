@@ -100,6 +100,29 @@ Good for a **single server**: Django API + SQLite file on **persistent disk** (E
 
 4. **Frontend:** build with `npm run build` and serve `dist/` via **nginx** on the same instance, **or** any static host (Netlify, CloudFront with **origin = your built files** — no S3 bucket required if you upload artifacts elsewhere). If the API is another origin, set `VITE_API_URL` at build time.
 
+## EC2 auto-start & deploy scripts
+
+On the server (after `git pull`), one-time systemd install:
+
+```bash
+chmod +x deploy/ec2/*.sh
+bash deploy/ec2/install-systemd.sh
+```
+
+Deploy updates (pull, build frontend, migrate, restart API + nginx):
+
+```bash
+bash deploy/ec2/deploy-aivora.sh
+```
+
+Manual start without systemd:
+
+```bash
+bash deploy/ec2/start-aivora.sh
+```
+
+Gunicorn logs: `~/AIvora/logs/gunicorn-error.log` and `gunicorn-access.log`. With systemd: `sudo journalctl -u aivora-api -f`.
+
 **Later upgrades**
 
 - **RDS PostgreSQL:** set `USE_SQLITE=False` and fill `DB_*` in `.env` (see comments in `.env.example`).
