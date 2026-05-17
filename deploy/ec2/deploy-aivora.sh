@@ -17,6 +17,8 @@ echo "==> Git pull"
 cd "$AIVORA_HOME"
 git pull origin main
 
+bash "$AIVORA_HOME/deploy/ec2/fix-env.sh"
+
 echo "==> Backend: install, migrate, collectstatic"
 # shellcheck source=/dev/null
 source "$VENV/bin/activate"

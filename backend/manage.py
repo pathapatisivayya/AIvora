@@ -5,7 +5,8 @@ import sys
 
 
 def main():
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    # Always use single settings module (ignore old config.settings.production in shell/.env)
+    os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings"
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

@@ -100,6 +100,10 @@ Good for a **single server**: Django API + SQLite file on **persistent disk** (E
 
 4. **Frontend:** build with `npm run build` and serve `dist/` via **nginx** on the same instance, **or** any static host (Netlify, CloudFront with **origin = your built files** — no S3 bucket required if you upload artifacts elsewhere). If the API is another origin, set `VITE_API_URL` at build time.
 
+## Full AWS deployment guide
+
+See **[deploy/ec2/AWS-DEPLOY.md](deploy/ec2/AWS-DEPLOY.md)** — Git, nginx, SSL, chmod, `.env`, systemd, and all scripts in one place.
+
 ## EC2 auto-start & deploy scripts
 
 On the server (after `git pull`), one-time systemd install:
